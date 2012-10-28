@@ -59,10 +59,10 @@ test "single line comment parsing", ->
     languageOutput  = path.join languagePath, "#{language.name}.html"
 
     # *Skip over this language if there is no corresponding test*
-    return testNextLanguage(keys, callback) if not path.existsSync languageExample   
+    return testNextLanguage(keys, callback) if not fs.existsSync languageExample
    
     testDoccoRun languageTest, [languageExample], options, ->
-      eq true, path.existsSync(languageOutput), "#{languageOutput} -> output file created properly"
+      eq true, fs.existsSync(languageOutput), "#{languageOutput} -> output file created properly"
 
       content = fs.readFileSync(languageOutput).toString()
       comments = (c.trim() for c in content.split(',') when c.trim() != '') 

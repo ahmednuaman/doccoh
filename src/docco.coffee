@@ -1,28 +1,25 @@
-# **Docco** is a quick-and-dirty, hundred-line-long, literate-programming-style
-# documentation generator. It produces HTML
-# that displays your comments alongside your code. Comments are passed through
+# **Doccoh** (Docco with Highlight.js) is a [fork of Docco](http://github.com/jashkenas/docco) (quick-and-dirty, hundred-line-long, literate-programming-style
+# documentation generator) that replaces Pygments syntax highlighter for [Highlight.js](https://github.com/isagalaev/highlight.js/).
+# It produces HTML that displays your comments alongside your code. Comments are passed through
 # [Markdown](http://daringfireball.net/projects/markdown/syntax), and code is
-# passed through [Pygments](http://pygments.org/) syntax highlighting.
-# This page is the result of running Docco against its own source file.
+# passed through [Highlight.js](https://github.com/isagalaev/highlight.js/) syntax highlighting.
+# This page is the result of running Doccoh against its own source file.
 #
-# If you install Docco, you can run it from the command-line:
+# If you install Doccoh, you can run it from the command-line:
 #
-#     docco src/*.coffee
+#     doccoh src/*.coffee
 #
 # ...will generate an HTML documentation page for each of the named source files, 
 # with a menu linking to the other pages, saving it into a `docs` folder.
 #
-# The [source for Docco](http://github.com/jashkenas/docco) is available on GitHub,
+# The [source for Doccoh](http://github.com/rozmiarek/doccoh) is available on GitHub,
 # and released under the MIT license.
 #
-# To install Docco, first make sure you have [Node.js](http://nodejs.org/),
-# [Pygments](http://pygments.org/) (install the latest dev version of Pygments
-# from [its Mercurial repo](https://bitbucket.org/birkenfeld/pygments-main)), and
-# [CoffeeScript](http://coffeescript.org/). Then, with NPM:
+# To install Doccoh, first make sure you have [Node.js](http://nodejs.org/). Then, with NPM:
 #
-#     sudo npm install -g docco
+#     sudo npm install -g doccoh
 #
-# Docco can be used to process CoffeeScript, JavaScript, Ruby, Python, or TeX files.
+# Doccoh can be used to process CoffeeScript, JavaScript, Ruby, Python, or TeX files.
 # Only single-line comments are processed -- block comments are ignored.
 #
 #### Partners in Crime:
@@ -96,45 +93,22 @@ parse = (source, code) ->
   save docsText, codeText
   sections
 
-# Highlights a single chunk of CoffeeScript code, using **Pygments** over stdio,
+# Highlights a single chunk of CoffeeScript code, using **Highlight.js**,
 # and runs the text of its corresponding comment through **Markdown**, using
 # [Showdown.js](http://attacklab.net/showdown/).
 #
-# We process the entire file in a single call to Pygments by inserting little
+# We process the entire file in a single call to Highlight.js by inserting little
 # marker comments between each section and then splitting the result string
 # wherever our markers occur.
 highlight = (source, sections, callback) ->
+  hljs.LANGUAGES['coffee-script'] = hljs.LANGUAGES['coffeescript'] # Compatibility with highlightJS naming scheme
   language = getLanguage source
-  pygments = spawn 'pygmentize', [
-    '-l', language.name,
-    '-f', 'html',
-    '-O', 'encoding=utf-8,tabsize=2'
-  ]
-  output   = ''
-  
-  pygments.stderr.on 'data',  (error)  ->
-    console.error error.toString() if error
-    
-  pygments.stdin.on 'error',  (error)  ->
-    console.error 'Could not use Pygments to highlight the source.'
-    process.exit 1
-    
-  pygments.stdout.on 'data', (result) ->
-    output += result if result
-    
-  pygments.on 'exit', ->
-    output = output.replace(highlightStart, '').replace(highlightEnd, '')
-    fragments = output.split language.dividerHtml
-    for section, i in sections
-      section.codeHtml = highlightStart + fragments[i] + highlightEnd
-      section.docsHtml = showdown.makeHtml section.docsText
-    callback()
-    
-  if pygments.stdin.writable
-    text = (section.codeText for section in sections)
-    pygments.stdin.write text.join language.dividerText
-    pygments.stdin.end()
-  
+
+  for section in sections
+    section.codeHtml = highlightStart + hljs.highlight(language.name, section.codeText).value + highlightEnd
+    section.docsHtml = showdown.makeHtml(section.docsText)
+  callback()
+
 # Once all of the code is finished highlighting, we can generate the HTML file by
 # passing the completed sections into the template, and then writing the file to 
 # the specified output path.
@@ -163,6 +137,7 @@ path     = require 'path'
 showdown = require('./../vendor/showdown').Showdown
 {spawn, exec} = require 'child_process'
 commander = require 'commander'
+hljs     = require 'highlight.js'
 
 # Read resource file and return its content.
 getResource = (name) ->
@@ -215,10 +190,10 @@ template = (str) ->
        .split('%>').join("p.push('") +
        "');}return p.join('');"
 
-# The start of each Pygments highlight block.
+# The start of each highlight block.
 highlightStart = '<div class="highlight"><pre>'
 
-# The end of each Pygments highlight block.
+# The end of each highlight block.
 highlightEnd   = '</pre></div>'
 
 # Extract the docco version from `package.json`

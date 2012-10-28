@@ -13,18 +13,18 @@ task 'build', 'build the docco library', (options) ->
 
 task 'install', 'install the `docco` command into /usr/local (or --prefix)', (options) ->
   base = options.prefix or '/usr/local'
-  lib  = base + '/lib/docco'
+  lib  = base + '/lib/doccoh'
   exec([
     'mkdir -p ' + lib
     'cp -rf bin README resources vendor lib ' + lib
-    'ln -sf ' + lib + '/bin/docco ' + base + '/bin/docco'
+    'ln -sf ' + lib + '/bin/doccoh ' + base + '/bin/doccoh'
   ].join(' && '), (err, stdout, stderr) ->
    if err then console.error stderr
   )
 
 task 'doc', 'rebuild the Docco documentation', ->
   exec([
-    'bin/docco src/docco.coffee'
+    'bin/doccoh src/docco.coffee'
     'sed "s/docco.css/resources\\/docco.css/" < docs/docco.html > index.html'
     'rm -r docs'
   ].join(' && '), (err) ->

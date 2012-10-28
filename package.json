@@ -1,9 +1,9 @@
 {
-  "name":         "docco",
-  "description":  "The Quick and Dirty Literate Programming Documentation Generator",
+  "name":         "doccoh",
+  "description":  "The Quick and Dirty Literate Programming Documentation Generator with Highlight.js as Syntax Highlighter",
   "keywords":     ["documentation", "docs", "generator", "coffeescript"],
   "author":       "Jeremy Ashkenas",
-  "version":      "0.4.0",
+  "version":      "0.4.1",
   "licenses": [{
     "type":       "MIT",
     "url":        "http://opensource.org/licenses/mit-license.php"
@@ -12,13 +12,14 @@
     "node":       ">=0.2.0"
   },
   "directories": {
-    "lib" :       "./lib"
+    "lib":        "./lib"
   },
   "dependencies": {
-    "commander"     : ">=0.5.2"
+    "commander":  ">=0.5.2",
+    "highlight.js": ">=7.3.0"
   },
   "main" :        "./lib/docco",
   "bin": {
-    "docco":      "./bin/docco"
+    "doccoh":     "./bin/doccoh"
   }
 }
